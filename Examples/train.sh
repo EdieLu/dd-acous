@@ -2,14 +2,13 @@
 #$ -S /bin/bash
 
 echo $HOSTNAME
-unset LD_PRELOAD # when run on the stack it has /usr/local/grid/agile/admin/cudadevice.so which will give core dumped
 export PATH=/home/mifs/ytl28/anaconda3/bin/:$PATH
 
-# export CUDA_VISIBLE_DEVICES=1
-export CUDA_VISIBLE_DEVICES=$X_SGE_CUDA_DEVICE
+export CUDA_VISIBLE_DEVICES=3
+# export CUDA_VISIBLE_DEVICES=$X_SGE_CUDA_DEVICE
 echo $CUDA_VISIBLE_DEVICES
 
-# python 3.6 
+# python 3.6
 # pytorch 1.1
 source activate py13-cuda9
 
@@ -18,16 +17,16 @@ max_seq_len=100 # 400 for char | 85 for word | 90 for bpe
 minibatch_partition=50
 batch_size=256
 
-# print_every=1
-# checkpoint_every=2
-print_every=150
-checkpoint_every=650
+print_every=1
+checkpoint_every=2
+# print_every=150
+# checkpoint_every=650
 num_epochs=50
 learning_rate=0.001
 
 random_seed=25
 eval_with_mask=True
-savedir=acous-dd-models-v2/dd-v2-noacous-v002/
+savedir=acous-dd-models-v2/debug/
 
 # ------------------------ file dir --------------------------
 # -- asr --
@@ -67,7 +66,7 @@ path_vocab=lib/vocab/swbd-min1.en
 load_embedding=lib/embeddings/glove.6B.200d.txt
 embedding_size=200
 
-# use_type=word # word-v2 
+# use_type=word # word-v2
 # path_vocab=lib/vocab/clctotal+swbd.min-count4.en
 # load_embedding=lib/embeddings/glove.6B.200d.txt
 # embedding_size=200
@@ -98,7 +97,7 @@ spec_aug=False
 # add_times=False
 # add_acous=True
 
-# restartdir=acous-las-models-v3/las-word-v001/checkpoints/2020_04_14_03_40_19/ 
+# restartdir=acous-las-models-v3/las-word-v001/checkpoints/2020_04_14_03_40_19/
 # batch_norm=False
 # acous_norm=True
 # spec_aug=True
@@ -106,7 +105,7 @@ spec_aug=False
 # ------------------------ model config --------------------------
 enc_mode=none # (las) pyramid | ts-pyramid | ts-collar (ts: used for timestamp mode only)
 acous_hidden_size=256
-acous_att_mode=bilinear # bilinear | bahdanau | hybrid	
+acous_att_mode=bilinear # bilinear | bahdanau | hybrid
 hidden_size_dec=200
 hidden_size_shared=200
 num_unilstm_dec=4
@@ -166,5 +165,3 @@ $PYTHONBIN /home/alta/BLTSpeaking/exp-ytl28/local-ytl/acous-dd-v2/train.py \
 	--las_freeze $las_freeze \
 	--las_loss_weight $las_loss_weight \
 	--dd_loss_weight $dd_loss_weight \
-
-

@@ -359,10 +359,10 @@ class LAS(nn.Module):
 				# layer1
 				acous_outputs_l1, acous_hidden_l1 = self.acous_enc_l1(
 					acous_feats, acous_hidden_init) # b x acous_len x 2dim
-				acous_outputs_l1 = self.dropout(acous_outputs_l1)
+				acous_outputs_l1 = self.dropout(acous_outputs_l1)\
 					.reshape(batch_size, acous_len, acous_outputs_l1.size(-1))
 				if self.batch_norm:
-					acous_outputs_l1 = self.bn1(acous_outputs_l1.permute(0, 2, 1))
+					acous_outputs_l1 = self.bn1(acous_outputs_l1.permute(0, 2, 1))\
 						.permute(0, 2, 1)
 				acous_inputs_l2 = acous_outputs_l1.reshape(
 					batch_size, int(acous_len/2), 2*acous_outputs_l1.size(-1))
@@ -371,38 +371,38 @@ class LAS(nn.Module):
 				# layer2
 				acous_outputs_l2, acous_hidden_l2 = self.acous_enc_l2(
 					acous_inputs_l2, acous_hidden_init) # b x acous_len/2 x 2dim
-				acous_outputs_l2 = self.dropout(acous_outputs_l2)
+				acous_outputs_l2 = self.dropout(acous_outputs_l2)\
 					.reshape(batch_size, int(acous_len/2), acous_outputs_l2.size(-1))
 				if self.batch_norm:
-						acous_outputs_l2 = self.bn2(acous_outputs_l2.permute(0, 2, 1))
+						acous_outputs_l2 = self.bn2(acous_outputs_l2.permute(0, 2, 1))\
 						.permute(0, 2, 1)
-				acous_inputs_l3 = acous_outputs_l2
+				acous_inputs_l3 = acous_outputs_l2\
 					.reshape(batch_size, int(acous_len/4), 2*acous_outputs_l2.size(-1))
 					# b x acous_len/4 x 4dim
 
 				# layer3
 				acous_outputs_l3, acous_hidden_l3 = self.acous_enc_l3(
 					acous_inputs_l3, acous_hidden_init) # b x acous_len/4 x 2dim
-				acous_outputs_l3 = self.dropout(acous_outputs_l3)
+				acous_outputs_l3 = self.dropout(acous_outputs_l3)\
 					.reshape(batch_size, int(acous_len/4), acous_outputs_l3.size(-1))
 				if self.batch_norm:
-					acous_outputs_l3 = self.bn3(acous_outputs_l3.permute(0, 2, 1))
+					acous_outputs_l3 = self.bn3(acous_outputs_l3.permute(0, 2, 1))\
 						.permute(0, 2, 1)
-				acous_inputs_l4 = acous_outputs_l3
+				acous_inputs_l4 = acous_outputs_l3\
 					.reshape(batch_size, int(acous_len/8), 2*acous_outputs_l3.size(-1)) # b x acous_len/8 x 4dim
 
 				# layer4
 				acous_outputs_l4, acous_hidden_l4 = self.acous_enc_l4(
 					acous_inputs_l4, acous_hidden_init) # b x acous_len/8 x 2dim
-				acous_outputs_l4 = self.dropout(acous_outputs_l4)
+				acous_outputs_l4 = self.dropout(acous_outputs_l4)\
 					.reshape(batch_size, int(acous_len/8), acous_outputs_l4.size(-1))
 				if self.batch_norm:
-						acous_outputs_l4 = self.bn4(acous_outputs_l4.permute(0, 2, 1))
+						acous_outputs_l4 = self.bn4(acous_outputs_l4.permute(0, 2, 1))\
 							.permute(0, 2, 1)
 				acous_outputs = acous_outputs_l4
 
 			elif self.enc_mode == 'cnn':
-				pass # TODO
+				pass # todo
 
 			# 3. ---- run dec + att + shared + output ----
 			"""
@@ -421,11 +421,11 @@ class LAS(nn.Module):
 			assert beam_width <= 1
 
 			# no beam search decoding
-			tgt_chunk = self.embedder(torch.Tensor([BOS]).repeat(batch_size,1)
+			tgt_chunk = self.embedder(torch.Tensor([BOS]).repeat(batch_size,1)\
 				.type(torch.LongTensor).to(device=device)) # BOS
-			cell_value = torch.FloatTensor([0])
+			cell_value = torch.FloatTensor([0])\
 				.repeat(batch_size, 1, self.hidden_size_shared).to(device=device)
-			prev_c = torch.FloatTensor([0])
+			prev_c = torch.FloatTensor([0])\
 				.repeat(batch_size, 1, max_seq_len).to(device=device)
 			attn_outputs = []
 			for idx in range(max_seq_len):
@@ -469,34 +469,34 @@ class LAS(nn.Module):
 				# layer1
 				acous_outputs_l1, acous_hidden_l1 = \
 					self.acous_enc_l1(acous_feats, acous_hidden_init) # b x acous_len x 2dim
-				acous_outputs_l1 = self.dropout(acous_outputs_l1)
+				acous_outputs_l1 = self.dropout(acous_outputs_l1)\
 					.reshape(batch_size, acous_len, acous_outputs_l1.size(-1))
-				acous_inputs_l2 = acous_outputs_l1
+				acous_inputs_l2 = acous_outputs_l1\
 					.reshape(batch_size, int(acous_len/2), 2*acous_outputs_l1.size(-1))
 					# b x acous_len/2 x 4dim
 
 				# layer2
 				acous_outputs_l2, acous_hidden_l2 = \
 					self.acous_enc_l2(acous_inputs_l2, acous_hidden_init) # b x acous_len/2 x 2dim
-				acous_outputs_l2 = self.dropout(acous_outputs_l2)
+				acous_outputs_l2 = self.dropout(acous_outputs_l2)\
 					.reshape(batch_size, int(acous_len/2), acous_outputs_l2.size(-1))
-				acous_inputs_l3 = acous_outputs_l2
+				acous_inputs_l3 = acous_outputs_l2\
 					.reshape(batch_size, int(acous_len/4), 2*acous_outputs_l2.size(-1))
 					# b x acous_len/4 x 4dim
 
 				# layer3
 				acous_outputs_l3, acous_hidden_l3 = \
 					self.acous_enc_l3(acous_inputs_l3, acous_hidden_init) # b x acous_len/4 x 2dim
-				acous_outputs_l3 = self.dropout(acous_outputs_l3)
+				acous_outputs_l3 = self.dropout(acous_outputs_l3)\
 					.reshape(batch_size, int(acous_len/4), acous_outputs_l3.size(-1))
-				acous_inputs_l4 = acous_outputs_l3
+				acous_inputs_l4 = acous_outputs_l3\
 					.reshape(batch_size, int(acous_len/8), 2*acous_outputs_l3.size(-1))
 					# b x acous_len/8 x 4dim
 
 				# layer4
 				acous_outputs_l4, acous_hidden_l4 = \
 					self.acous_enc_l4(acous_inputs_l4, acous_hidden_init) # b x acous_len/8 x 2dim
-				acous_outputs_l4 = self.dropout(acous_outputs_l4)
+				acous_outputs_l4 = self.dropout(acous_outputs_l4) \
 					.reshape(batch_size, int(acous_len/8), acous_outputs_l4.size(-1))
 				acous_outputs = acous_outputs_l4
 
@@ -546,7 +546,7 @@ class LAS(nn.Module):
 				if is_training: acous_feats = self.pre_process_acous(acous_feats)
 				# b x acous_len x 2dim
 				acous_outputs, acous_hidden = self.acous_enc(acous_feats, acous_hidden_init)
-				acous_outputs = self.dropout(acous_outputs)
+				acous_outputs = self.dropout(acous_outputs)\
 					.reshape(batch_size, acous_len, acous_outputs.size(-1))
 
 				att_keys = acous_outputs # b x acous_len x 2dim
@@ -587,7 +587,7 @@ class LAS(nn.Module):
 			else:
 				acous_outputs, acous_hidden = self.acous_enc(
 					acous_feats, acous_hidden_init) # b x acous_len x 2dim
-				acous_outputs = self.dropout(acous_outputs)
+				acous_outputs = self.dropout(acous_outputs)\
 					.reshape(batch_size, acous_len, acous_outputs.size(-1))
 
 				att_keys = acous_outputs # b x acous_len x 2dim
@@ -625,7 +625,7 @@ class LAS(nn.Module):
 		dd_blstm_hidden_init = None
 		dd_blstm_outputs, dd_blstm_hidden = \
 			self.dd_blstm(emb_tgt, dd_blstm_hidden_init)
-		dd_blstm_outputs = self.dropout(dd_blstm_outputs)
+		dd_blstm_outputs = self.dropout(dd_blstm_outputs)\
 			.view(batch_size, max_seq_len, 2 * self.dd_blstm_size)
 
 		if self.add_acous:
@@ -701,7 +701,7 @@ class LAS(nn.Module):
 		# record sizes
 		batch_size = tgt_chunk.size(0)
 		tgt_chunk_etd = torch.cat([tgt_chunk, prev_cell_value], -1)
-		tgt_chunk_etd = tgt_chunk_etd
+		tgt_chunk_etd = tgt_chunk_etd\
 			.view(-1, 1, self.embedding_size + self.hidden_size_shared)
 
 		# run dec

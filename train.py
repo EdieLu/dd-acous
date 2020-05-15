@@ -70,7 +70,7 @@ def load_arguments(parser):
 	parser.add_argument('--num_unilstm_dec', type=int, default=2, help='number of encoder bilstm layers')
 
 	# train
-	parser.add_argument('--random_seed', type=int, default=666, help='random seed')
+	parser.add_argument('--random_seed', type=int, default=333, help='random seed')
 	parser.add_argument('--max_seq_len', type=int, default=32, help='maximum sequence length')
 	parser.add_argument('--batch_size', type=int, default=64, help='batch size')
 	parser.add_argument('--embedding_dropout', type=float, default=0.0, help='embedding dropout')
@@ -209,12 +209,13 @@ class Trainer(object):
 						labs.reshape(-1).type(torch.FloatTensor).to(device),
 						non_padding_mask_src.reshape(-1))
 					dd_loss.norm_term = torch.sum(non_padding_mask_src)
+					dd_loss.normalise()
 					dd_resloss += dd_loss.get_loss()
 					dd_resloss_norm += 1
 
 					# cls accuracy
 					hyp_labs = (dd_ps > 0.5).long()
-					correct = hyp_labs.view(-1).eq(labs.reshape(-1))
+					correct = hyp_labs.view(-1).eq(labs.reshape(-1))\
 						.masked_select(non_padding_mask_src.reshape(-1)).sum().item()
 					dd_match += correct
 					dd_total += non_padding_mask_src.sum().item()
@@ -308,6 +309,7 @@ class Trainer(object):
 				labs.reshape(-1).type(torch.FloatTensor).to(device),
 				non_padding_mask_src.reshape(-1))
 			dd_loss.norm_term = 1.0 * torch.sum(non_padding_mask_src)
+			dd_loss.normalise()
 
 			# import pdb; pdb.set_trace()
 			dd_loss.acc_loss /= n_minibatch
@@ -446,7 +448,7 @@ class Trainer(object):
 								defaults = resume_optim.param_groups[0]
 								defaults.pop('params', None)
 								defaults.pop('initial_lr', None)
-								self.optimizer.optimizer = resume_optim
+								self.optimizer.optimizer = resume_optim\
 									.__class__(model.parameters(), **defaults)
 								# start_epoch = resume_checkpoint.epoch
 								# step = resume_checkpoint.step
@@ -471,7 +473,7 @@ class Trainer(object):
 								defaults = resume_optim.param_groups[0]
 								defaults.pop('params', None)
 								defaults.pop('initial_lr', None)
-								self.optimizer.optimizer = resume_optim
+								self.optimizer.optimizer = resume_optim\
 									.__class__(model.parameters(), **defaults)
 								start_epoch = resume_checkpoint.epoch
 								step = resume_checkpoint.step
@@ -600,6 +602,7 @@ class Trainer(object):
 					las_loss.eval_batch_with_mask(logps.reshape(-1, logps.size(-1)),
 						src_ids.reshape(-1), non_padding_mask_src.reshape(-1))
 					las_loss.norm_term = torch.sum(non_padding_mask_src)
+					las_loss.normalise()
 					las_resloss += las_loss.get_loss()
 					las_resloss_norm += 1
 
@@ -609,20 +612,21 @@ class Trainer(object):
 						labs.reshape(-1).type(torch.FloatTensor).to(device),
 						non_padding_mask_src.reshape(-1))
 					dd_loss.norm_term = torch.sum(non_padding_mask_src)
+					dd_loss.normalise()
 					dd_resloss += dd_loss.get_loss()
 					dd_resloss_norm += 1
 
 					# las accuracy
 					seqlist = ret_dict['sequence']
 					seqres = torch.stack(seqlist, dim=1).to(device=device)
-					correct = seqres.view(-1).eq(src_ids.reshape(-1))
+					correct = seqres.view(-1).eq(src_ids.reshape(-1))\
 						.masked_select(non_padding_mask_src.reshape(-1)).sum().item()
 					las_match += correct
 					las_total += non_padding_mask_src.sum().item()
 
 					# cls accuracy
 					hyp_labs = (dd_ps > 0.5).long()
-					correct = hyp_labs.view(-1).eq(labs.reshape(-1))
+					correct = hyp_labs.view(-1).eq(labs.reshape(-1))\
 						.masked_select(non_padding_mask_src.reshape(-1)).sum().item()
 					dd_match += correct
 					dd_total += non_padding_mask_src.sum().item()
@@ -737,6 +741,7 @@ class Trainer(object):
 			las_loss.eval_batch_with_mask(logps.reshape(-1, logps.size(-1)),
 				src_ids.reshape(-1), non_padding_mask_src.reshape(-1))
 			las_loss.norm_term = 1.0 * torch.sum(non_padding_mask_src)
+			las_loss.normalise()
 
 			# dd loss
 			dd_ps = ret_dict['classify_prob']
@@ -744,6 +749,7 @@ class Trainer(object):
 				labs.reshape(-1).type(torch.FloatTensor).to(device),
 				non_padding_mask_src.reshape(-1))
 			dd_loss.norm_term = 1.0 * torch.sum(non_padding_mask_src)
+			dd_loss.normalise()
 
 			# import pdb; pdb.set_trace()
 			# Backward propagation: accumulate gradient
@@ -841,7 +847,7 @@ class Trainer(object):
 					dd_print_loss_avg = dd_print_loss_total / self.print_every
 					dd_print_loss_total = 0
 
-					log_msg = 'Progress: %d%%, Train las: %.4f dd: %.4f'
+					log_msg = 'Progress: %d%%, Train las: %.4f dd: %.4f'\
 						% (step / total_steps * 100, las_print_loss_avg, dd_print_loss_avg)
 					log.info(log_msg)
 					self.writer.add_scalar('train_las_loss', las_print_loss_avg, global_step=step)
@@ -900,7 +906,7 @@ class Trainer(object):
 								defaults = resume_optim.param_groups[0]
 								defaults.pop('params', None)
 								defaults.pop('initial_lr', None)
-								self.optimizer.optimizer = resume_optim
+								self.optimizer.optimizer = resume_optim\
 									.__class__(model.parameters(), **defaults)
 								# start_epoch = resume_checkpoint.epoch
 								# step = resume_checkpoint.step
@@ -925,7 +931,7 @@ class Trainer(object):
 								defaults = resume_optim.param_groups[0]
 								defaults.pop('params', None)
 								defaults.pop('initial_lr', None)
-								self.optimizer.optimizer = resume_optim
+								self.optimizer.optimizer = resume_optim\
 									.__class__(model.parameters(), **defaults)
 								start_epoch = resume_checkpoint.epoch
 								step = resume_checkpoint.step
@@ -1050,12 +1056,13 @@ class Trainer(object):
 						labs.reshape(-1).type(torch.FloatTensor).to(device),
 						non_padding_mask_src.reshape(-1))
 					dd_loss.norm_term = torch.sum(non_padding_mask_src)
+					dd_loss.normalise()
 					dd_resloss += dd_loss.get_loss()
 					dd_resloss_norm += 1
 
 					# cls accuracy
 					hyp_labs = (dd_ps > 0.5).long()
-					correct = hyp_labs.view(-1).eq(labs.reshape(-1))
+					correct = hyp_labs.view(-1).eq(labs.reshape(-1))\
 						.masked_select(non_padding_mask_src.reshape(-1)).sum().item()
 					dd_match += correct
 					dd_total += non_padding_mask_src.sum().item()
@@ -1151,6 +1158,7 @@ class Trainer(object):
 				labs.reshape(-1).type(torch.FloatTensor).to(device),
 				non_padding_mask_src.reshape(-1))
 			dd_loss.norm_term = 1.0 * torch.sum(non_padding_mask_src)
+			dd_loss.normalise()
 
 			# import pdb; pdb.set_trace()
 			# Backward propagation: accumulate gradient
@@ -1290,7 +1298,7 @@ class Trainer(object):
 								defaults = resume_optim.param_groups[0]
 								defaults.pop('params', None)
 								defaults.pop('initial_lr', None)
-								self.optimizer.optimizer = resume_optim
+								self.optimizer.optimizer = resume_optim\
 									.__class__(model.parameters(), **defaults)
 								# start_epoch = resume_checkpoint.epoch
 								# step = resume_checkpoint.step
@@ -1315,7 +1323,7 @@ class Trainer(object):
 								defaults = resume_optim.param_groups[0]
 								defaults.pop('params', None)
 								defaults.pop('initial_lr', None)
-								self.optimizer.optimizer = resume_optim
+								self.optimizer.optimizer = resume_optim\
 									.__class__(model.parameters(), **defaults)
 								start_epoch = resume_checkpoint.epoch
 								step = resume_checkpoint.step

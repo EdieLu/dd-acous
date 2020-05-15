@@ -1,11 +1,11 @@
 from __future__ import print_function
 import math
-import torch 
+import torch
 import torch.nn as nn
 import numpy as np
 
-""" 
-	from https://github.com/IBM/pytorch-seq2seq/blob/master/seq2seq/loss/loss.py 
+"""
+	from https://github.com/IBM/pytorch-seq2seq/blob/master/seq2seq/loss/loss.py
 	with minor modification by YTL
 """
 
@@ -77,10 +77,13 @@ class Loss(object):
 		if type(self.acc_loss) is int:
 			raise ValueError("No loss to back propagate.")
 		self.acc_loss.backward(retain_graph=retain_graph)
-		
+
+	def normalise(self):
+		self.acc_loss /= self.norm_term
+
 	def mul(self, coeff):
 		self.acc_loss *= coeff
-		
+
 	def add(self, loss2):
 		self.acc_loss += loss2.acc_loss
 
@@ -116,7 +119,6 @@ class NLLLoss(Loss):
 			return 0
 		# total loss for all batches
 		loss = self.acc_loss.data.detach().item()
-		loss /= self.norm_term
 		return loss
 
 	def eval_batch(self, outputs, target):
@@ -124,7 +126,7 @@ class NLLLoss(Loss):
 		self.norm_term += 1
 
 	def eval_batch_with_mask(self, outputs, target, mask):
-		
+
 		# masked_loss = torch.mul(self.criterion(outputs, target),mask)
 		masked_loss = self.criterion(outputs, target).masked_select(mask)
 		self.acc_loss += masked_loss.sum()
@@ -152,7 +154,6 @@ class BCELoss(Loss):
 			return 0
 		# total loss for all batches
 		loss = self.acc_loss.data.detach().item()
-		loss /= self.norm_term
 		return loss
 
 	def eval_batch(self, outputs, target):
@@ -160,7 +161,7 @@ class BCELoss(Loss):
 		self.norm_term += 1
 
 	def eval_batch_with_mask(self, outputs, target, mask):
-		
+
 		# masked_loss = torch.mul(self.criterion(outputs, target),mask)
 		masked_loss = self.criterion(outputs, target).masked_select(mask)
 		self.acc_loss += masked_loss.sum()
@@ -188,7 +189,6 @@ class CrossEntropyLoss(Loss):
 			return 0
 		# total loss for all batches
 		loss = self.acc_loss.data.detach().item()
-		loss /= self.norm_term
 		return loss
 
 	def eval_batch(self, outputs, target):
@@ -196,17 +196,8 @@ class CrossEntropyLoss(Loss):
 		self.norm_term += 1
 
 	def eval_batch_with_mask(self, outputs, target, mask):
-		
+
 		# masked_loss = torch.mul(self.criterion(outputs, target),mask)
 		masked_loss = self.criterion(outputs, target).masked_select(mask)
 		self.acc_loss += masked_loss.sum()
 		self.norm_term += 1
-
-
-
-
-
-
-
-
-

@@ -2,9 +2,10 @@
 
 incorporate acoustic features (using FBKs) with sequence tagging DD
 
-## Packages
+## Libraries
 
 python3.6
+
 pytorch1.3
 
 ## Options

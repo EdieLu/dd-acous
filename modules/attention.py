@@ -167,7 +167,7 @@ class AttentionLayer(nn.Module):
 
 			if t_q != 1:
 				# teacher forcing mode - t_q != 1
-				key_indices = torch.arange(t_k).repeat(b, t_q)
+				key_indices = torch.arange(t_k).repeat(b, t_q)\
 					.view(b, t_q, t_k).type(torch.FloatTensor)
 				c_curr = torch.FloatTensor([0]).repeat(b, t_q, t_k)
 				if self.use_gpu and torch.cuda.is_available():
@@ -183,7 +183,7 @@ class AttentionLayer(nn.Module):
 
 			else:
 				# infernece mode: t_q = 1
-				key_indices = torch.arange(t_k).repeat(b, 1)
+				key_indices = torch.arange(t_k).repeat(b, 1)\
 					.view(b, 1, t_k).type(torch.FloatTensor)
 				if self.use_gpu and torch.cuda.is_available():
 					key_indices = key_indices.cuda()
@@ -264,11 +264,11 @@ class AttentionLayer(nn.Module):
 			if self.hard_att:
 				top_idx = torch.argmax(scores, dim=2)
 				scores_view = scores.view(-1, t_k)
-				scores_hard = (scores_view == scores_view
+				scores_hard = (scores_view == scores_view\
 					.max(dim=1, keepdim=True)[0]).view_as(scores)
 				scores_hard = scores_hard.type(torch.FloatTensor)
 				total_score = torch.sum(scores_hard, dim=2)
-				total_score = total_score.view(b,t_q,1).repeat(1,1,t_k)
+				total_score = total_score.view(b,t_q,1).repeat(1,1,t_k)\
 					.view_as(scores)
 				scores_normalized = scores_hard / total_score
 				if self.use_gpu and torch.cuda.is_available():
