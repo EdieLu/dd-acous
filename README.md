@@ -2,7 +2,7 @@
 
 incorporate acoustic features (using FBKs) with sequence tagging DD
 
-## Libraries
+## Requirements
 
 python3.6
 
